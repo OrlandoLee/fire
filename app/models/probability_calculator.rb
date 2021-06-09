@@ -5,6 +5,9 @@ class ProbabilityCalculator
     FIRE = 0
     WIN = 1
     
+    DATA_SOURCE = "./storage/shiller_data_formatted2_china.csv"
+    # DATA_SOURCE = "./storage/shiller_data_formatted2.csv"
+    
     def initialize(start_portfolio= 1200000.0, monthly_spend = 4000.0, stock_percent = 1.0, bond_percent = 0.0, cash_percent=0.0, fire_age=30)
         @start_portfolio = start_portfolio
         @monthly_spend = monthly_spend
@@ -12,7 +15,7 @@ class ProbabilityCalculator
         @bond_percent = bond_percent
         @cash_percent = cash_percent
         @fire_age = fire_age  
-        @stock_bond_monthly_table = CSV.parse(File.read("./storage/shiller_data_formatted2_china.csv"), headers: true)
+        @stock_bond_monthly_table = CSV.parse(File.read(DATA_SOURCE), headers: false)
         @number_of_years = @stock_bond_monthly_table.count/12
     end
 
@@ -81,15 +84,25 @@ class ProbabilityCalculator
         (@number_of_years-100+@fire_age).times do |i|
             all_cycles_result << calculate_one_cycle(i*12)
         end
-        number_of_possibilities = all_cycles_result.count
+        number_of_cycles = all_cycles_result.count
         number_of_months = all_cycles_result[0].count
 
-        number_of_possibilities.times do |offset|
-            win_rate << all_cycles_result[offset].count{|i| i == WIN}.to_f/number_of_months
-            fire_rate << all_cycles_result[offset].count{|i| i == FIRE}.to_f/number_of_months
-            broke_rate << all_cycles_result[offset].count{|i| i == BROKE}.to_f/number_of_months
+        (number_of_months/12).times do |year|
+            total_win = 0
+            total_fire = 0
+            total_broke = 0
+            number_of_cycles.times do |cycle|
+                year_start_month = year*12
+                year_end_month = year*12+11
+                total_win += all_cycles_result[cycle][year_start_month..year_end_month].count{|i| i == WIN}
+                total_fire += all_cycles_result[cycle][year_start_month..year_end_month].count{|i| i == FIRE}
+                total_broke += all_cycles_result[cycle][year_start_month..year_end_month].count{|i| i == BROKE}
+            end
+            total_count = total_win + total_fire + total_broke
+            win_rate << total_win/total_count.to_f
+            fire_rate << total_fire/total_count.to_f
+            broke_rate << total_broke/total_count.to_f
         end
-
         return [win_rate, fire_rate, broke_rate]
     end
 
