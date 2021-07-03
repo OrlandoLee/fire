@@ -5,10 +5,10 @@ class ProbabilityCalculator
     FIRE = 0
     WIN = 1
     
-    DATA_SOURCE = "./storage/shiller_data_formatted2_china.csv"
-    # DATA_SOURCE = "./storage/shiller_data_formatted2.csv"
+    # DATA_SOURCE = "./storage/shiller_data_formatted2_china.csv"
+    DATA_SOURCE = "./storage/shiller_data_formatted2.csv"
     
-    def initialize(start_portfolio= 1200000.0, monthly_spend = 4000.0, stock_percent = 1.0, bond_percent = 0.0, cash_percent=0.0, fire_age=30)
+    def initialize(start_portfolio= 1200000.0, monthly_spend = 4000.0, stock_percent = 0.9, bond_percent = 0.08, cash_percent=0.02, fire_age=30)
         @start_portfolio = start_portfolio
         @monthly_spend = monthly_spend
         @stock_percent = stock_percent
@@ -21,6 +21,7 @@ class ProbabilityCalculator
 
 
     def calculate_one_cycle(offset)
+        # return unless offset == 0
         p "---- #{offset} cycle"
 
         # start from each row in the table
@@ -45,20 +46,20 @@ class ProbabilityCalculator
                 bond_return = raw_returns[3].to_f
                 bond_div = raw_returns[4].to_f
                 inflation = raw_returns[5].to_f
-                
+
+                #stock is correct
                 stock_portfolio = current_portfolio * @stock_percent
                 bond_portfolio = current_portfolio * @bond_percent
                 cash_portfolio = current_portfolio * @cash_percent
                 
-                # rebalance each year
+                # TODO: need to rebalance each year
                 # only calculate total for now
+                stock_portfolio = stock_portfolio * stock_return + stock_portfolio * stock_div
+                bond_portfolio = bond_portfolio * bond_return + bond_portfolio * bond_div
+                cash_portfolio = cash_portfolio
 
-                stock_portfolio = stock_portfolio * stock_return
-                bond_portfolio = bond_portfolio * bond_return
-                cash_portfolio = cash_portfolio / inflation
-
-                current_portfolio = stock_portfolio+bond_portfolio+cash_portfolio-@monthly_spend
-
+                # bond and cash are affected by inflation
+                current_portfolio = stock_portfolio+(bond_portfolio+cash_portfolio) / inflation-@monthly_spend
                 if(current_portfolio <= 0)
                     monthly_result << BROKE
                     next
