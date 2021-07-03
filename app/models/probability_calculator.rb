@@ -21,7 +21,6 @@ class ProbabilityCalculator
 
 
     def calculate_one_cycle(offset)
-        # return unless offset == 0
         p "---- #{offset} cycle"
 
         # start from each row in the table
@@ -47,12 +46,11 @@ class ProbabilityCalculator
                 bond_div = raw_returns[4].to_f
                 inflation = raw_returns[5].to_f
 
-                #stock is correct
+                #rebalance is already done here
                 stock_portfolio = current_portfolio * @stock_percent
                 bond_portfolio = current_portfolio * @bond_percent
                 cash_portfolio = current_portfolio * @cash_percent
-                
-                # TODO: need to rebalance each year
+            
                 # only calculate total for now
                 stock_portfolio = stock_portfolio * stock_return + stock_portfolio * stock_div
                 bond_portfolio = bond_portfolio * bond_return + bond_portfolio * bond_div
