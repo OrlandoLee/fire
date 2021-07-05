@@ -5,8 +5,8 @@ class ProbabilityCalculator
     FIRE = 0
     WIN = 1
     
-    # DATA_SOURCE = "./storage/shiller_data_formatted2_china.csv"
-    DATA_SOURCE = "./storage/shiller_data_formatted2.csv"
+    DATA_SOURCE = "./storage/shiller_data_formatted2_china.csv"
+    # DATA_SOURCE = "./storage/shiller_data_formatted2.csv"
     
     def initialize(start_portfolio= 1200000.0, monthly_spend = 4000.0, stock_percent = 0.9, bond_percent = 0.08, cash_percent=0.02, fire_age=30)
         @start_portfolio = start_portfolio
@@ -148,6 +148,7 @@ class ProbabilityCalculator
             legend: {
                 data:  ['dead', 'broke', 'fire', 'win'] #1
             },
+            color: ["#7B7B7B", "#DB625E", "#94E694", "#72C372"],
             toolbox: {
                 feature: {
                     saveAsImage: {}

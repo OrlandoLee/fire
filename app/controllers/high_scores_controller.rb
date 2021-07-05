@@ -3,7 +3,14 @@ class HighScoresController < ApplicationController
 
   # GET /high_scores or /high_scores.json
   def index
-    calculator = ProbabilityCalculator.new
+    calculator = ProbabilityCalculator.new(
+      200000.0, 
+      4000.0,
+      0.9,
+      0.08,
+      0.02,
+      60
+    )
     render json: calculator.generate_graph_json
   end
 
