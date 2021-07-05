@@ -137,13 +137,7 @@ class ProbabilityCalculator
                 text: '堆叠区域图'
             },
             tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross',
-                    label: {
-                        backgroundColor: '#6a7985'
-                    }
-                }
+                trigger: 'axis'
             },
             legend: {
                 data:  ['dead', 'broke', 'fire', 'win'] #1
@@ -169,7 +163,8 @@ class ProbabilityCalculator
             ],
             yAxis: [
                 {
-                    type: 'value'
+                    type: 'value',
+                    max: 100
                 }
             ],
             series: [
@@ -181,7 +176,7 @@ class ProbabilityCalculator
                     emphasis: {
                         focus: 'series'
                     },
-                    data: dead_array[@fire_age..-1] #2
+                    data: dead_array[@fire_age..-1].map {|x| (x*100).round(1)} #2
                 },
                 {
                     name: 'broke',
@@ -191,7 +186,7 @@ class ProbabilityCalculator
                     emphasis: {
                         focus: 'series'
                     },
-                    data: broke_array 
+                    data: broke_array.map {|x| (x*100).round(1)} 
                 },
                 {
                     name: 'fire',
@@ -201,7 +196,7 @@ class ProbabilityCalculator
                     emphasis: {
                         focus: 'series'
                     },
-                    data: fire_array
+                    data: fire_array.map {|x| (x*100).round(1)}
                 },
                 {
                     name: 'win',
@@ -211,7 +206,7 @@ class ProbabilityCalculator
                     emphasis: {
                         focus: 'series'
                     },
-                    data: win_array
+                    data: win_array.map {|x| (x*100).round(1)}
                 }
             ]
         }.to_json
