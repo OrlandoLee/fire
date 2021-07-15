@@ -1,5 +1,6 @@
 require 'csv'
 
+# use https://www.ruby2js.com/demo to convert to js so that we don't need a server
 class ProbabilityCalculator
     BROKE = -1
     FIRE = 0
@@ -21,7 +22,7 @@ class ProbabilityCalculator
 
 
     def calculate_one_cycle(offset)
-        p "---- #{offset} cycle"
+        # p "---- #{offset} cycle"
 
         # start from each row in the table
         
@@ -74,6 +75,7 @@ class ProbabilityCalculator
         return monthly_result
     end
 
+    # this is a little hard to convert. other parts are easy
     def calculate_win_broke_fire_rate
         all_cycles_result = []
         win_rate = []
@@ -86,6 +88,7 @@ class ProbabilityCalculator
         number_of_cycles = all_cycles_result.count
         number_of_months = all_cycles_result[0].count
 
+
         (number_of_months/12).times do |year|
             total_win = 0
             total_fire = 0
@@ -93,9 +96,10 @@ class ProbabilityCalculator
             number_of_cycles.times do |cycle|
                 year_start_month = year*12
                 year_end_month = year*12+11
-                total_win += all_cycles_result[cycle][year_start_month..year_end_month].count{|i| i == WIN}
-                total_fire += all_cycles_result[cycle][year_start_month..year_end_month].count{|i| i == FIRE}
-                total_broke += all_cycles_result[cycle][year_start_month..year_end_month].count{|i| i == BROKE}
+
+                total_win += all_cycles_result[cycle].slice(year_start_month, year_end_month-year_start_month).count{|i| i == WIN}
+                total_fire += all_cycles_result[cycle].slice(year_start_month, year_end_month-year_start_month).count{|i| i == FIRE}
+                total_broke += all_cycles_result[cycle].slice(year_start_month, year_end_month-year_start_month).count{|i| i == BROKE}
             end
             total_count = total_win + total_fire + total_broke
             win_rate << total_win/total_count.to_f
@@ -104,6 +108,7 @@ class ProbabilityCalculator
         end
         return [win_rate, fire_rate, broke_rate]
     end
+
 
     def generate_graph_json
         result = calculate_win_broke_fire_rate
@@ -116,21 +121,21 @@ class ProbabilityCalculator
             next if dead.nil?
             # dead is guaranteed. 
             # for the rest, based on possibility, allocate to win, broke and fire
-            win_array << ((1-dead) * win)
+            win_array.push((1-dead) * win)
         end
         result[1].each_with_index do |fire, i|
             dead = dead_array[@fire_age+i]
             # dead is guaranteed. 
             # for the rest, based on possibility, allocate to win, broke and fire
             next if dead.nil?
-            fire_array << ((1-dead) * fire)
+            fire_array.push((1-dead) * fire)
         end
         result[2].each_with_index do |broke, i|
             dead = dead_array[@fire_age+i]
             next if dead.nil?
             # dead is guaranteed. 
             # for the rest, based on possibility, allocate to win, broke and fire
-            broke_array << ((1-dead) * broke)
+            broke_array.push((1-dead) * broke)
         end
         return {
             title: {
@@ -158,7 +163,7 @@ class ProbabilityCalculator
                 {
                     type: 'category',
                     boundaryGap: false,
-                    data: (@fire_age..broke_array.size+@fire_age).to_a
+                    data: Array.new(broke_array.size) {|i| i+@fire_age} 
                 }
             ],
             yAxis: [
@@ -176,7 +181,7 @@ class ProbabilityCalculator
                     emphasis: {
                         focus: 'series'
                     },
-                    data: dead_array[@fire_age..-1].map {|x| (x*100).round(1)} #2
+                    data: dead_array.slice(@fire_age, dead_array.size).map {|x| (x*100).round(1)} #2
                 },
                 {
                     name: 'broke',

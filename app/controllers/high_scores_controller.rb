@@ -4,12 +4,12 @@ class HighScoresController < ApplicationController
   # GET /high_scores or /high_scores.json
   def index
     calculator = ProbabilityCalculator.new(
-      200000.0, 
-      4000.0,
-      0.9,
-      0.08,
-      0.02,
-      60
+      (params[:savings] || 1000000.0).to_f, 
+      (params[:cost] || 4000.0).to_f,
+      (params[:stock] || 0.9).to_f,
+      (params[:bond] || 0.08).to_f,
+      (params[:cash] || 0.02).to_f,
+      (params[:years] || 60).to_i
     )
     render json: calculator.generate_graph_json
   end
